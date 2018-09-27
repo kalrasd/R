@@ -1,0 +1,49 @@
+---
+title: "The Title Here"
+author: "Your Name Here"
+date: "The Date Here"
+output:
+  html_document:
+    number_sections: true
+---
+**Front matter**
+
+This submission is my work alone and complies with the 30531 integrity policy.
+  
+  Add your initials to indicate your agreement: **__**
+
+
+```{r message=FALSE, warning=FALSE}
+# LOAD LIBRARIES HERE
+library(tidyverse)
+```
+
+# Setup
+
+# R4DS Exercises
+## Section heading goes here
+<!--Please do your best to match the problem set numbering. This will happen 
+    automatically if you follow the pattern of #s.
+    
+    One # gives you a main heading; 
+    two ## give a sub-heading. 
+    For the next layer of numbering, please follow the numbering manually; 
+    If you are really interested in automatic numbering see a TA.
+    
+    Try knit to html before proceeding to see what the output will look like!
+    -->
+    
+    
+1. TEXT ANSWER GOES HERE
+
+```{r}
+# CODE GOES HERE
+ggplot(mpg, aes(manufacturer)) + geom_bar()
+```
+
+2. TEXT ANSWER GOES HERE
+
+```{r}
+# CODE GOES HERE
+ggplot(mtcars, aes(factor(cyl), mpg)) + geom_violin(aes(fill=mpg))
+```
