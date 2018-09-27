@@ -5,8 +5,8 @@ Github provides online storage with version control using software called `git`.
 
 # Using the `pset_template.Rmd`
 1.  You have three options for working with github. As you go down the list, the user has less control, but an easier entry point.
-    1. `git` throught the command line to clone this repository.
-    1. Use github desktop.
+    1. `git` throught the command line to clone this repository. (http://rogerdudler.github.io/git-guide/)
+    1. Use github desktop. (https://desktop.github.com/)
     1. Use the website directly. (Download and upload using buttons on repo home page). 
 
 1. Rename the file as directed by the homework.
