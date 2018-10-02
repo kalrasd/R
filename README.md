@@ -10,7 +10,7 @@ For the purposes of this class, we will only use a few of the many available `gi
 
 `git clone https://github.com/$username/$repo`
 
-Replacing the username and repository name as appropriate. By default, `git clone` will place the clone repo into your current command line/terminal directory. You can change this by specifying a filepath after the repo name in the clone command, like so:
+Replacing the username and repository name as appropriate. By default, `git clone` will place the cloned repo into your current command line/terminal directory. You can change this by specifying a filepath after the repo name in the clone command, like so:
 
 `git clone https://github.com/$username/$repo /path/to/directory`
 
