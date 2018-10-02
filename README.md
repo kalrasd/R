@@ -10,7 +10,7 @@ For the purposes of this class, we will only use a few of the many available `gi
 
 `git clone https://github.com/$username/$repo`
 
-Replacing the username and repository name as appropriate. By default, `git clone` will place the cloned repo into your current command line/terminal directory. You can change this by specifying a filepath after the repo name in the clone command, like so:
+Replacing the username and repository name as appropriate. By default, `git clone` will place the cloned repo into your current command line/terminal directory. You can change this by specifying a path after the repo name in the clone command, like so:
 
 `git clone https://github.com/$username/$repo /path/to/directory`
 
@@ -19,18 +19,18 @@ Once a repository is cloned, you can make local changes to the files in that rep
 
 `git add filename`
 
-You can also use glob patterns (wildcards) to specify which files you want to add. For example, if you want to add all .Rmd files, you could use:
+You can also use glob patterns (wildcards) to specify which files you want to add. For example, if you want to add all `.Rmd` files, you could use:
 
 `git add *.Rmd`
 
-Where `*` is a wildcard character. You can also use `git add .` to add everything in your folder/repo.
+Where `*` is a wildcard character. You can also use `git add .` to add everything in your working directory.
 
 ## commit
-Once you've added files or changes you need to commit them. `git commit` is a way to take a snapshot of the state of your files, i.e. *commit* your changes to `git`'s memory. Each commit represents your files at a specific point in time, and you can jump back to any one of those points without losing data. You must commit before pushing to GitHub. To commit files or changes, first use `git add`, then use:
+Once you've added files or changes, you need to commit them. `git commit` is a way to take a snapshot of the state of your files, i.e. *commit* your changes to `git`'s memory. Each commit represents your files at a specific point in time, and you can jump back to any one of those points without losing data. You must commit before pushing to GitHub. To commit files or changes inside files, first use `git add`, then use:
 
 `git commit -m "message"`
 
-Where `message` is something describing what changes you've made. Most first time commits use the message `Initial commit`.
+Where `message` is something describing the changes you've made. Most first time commits use the message `Initial commit`.
 
 ## push
 After committing your changes, you can now push your commit to GitHub. If you've cloned a GitHub repo, `git` will push back to that repo by default. As such, the syntax for `git push` is simply:
@@ -40,10 +40,10 @@ After committing your changes, you can now push your commit to GitHub. If you've
 This will push any files or changes you've made to the remote repository, in this case GitHub, where you can view them online.
 
 ## Using .gitignore
-By default, `git add .` or `git add *` will add all files within a folder. Sometimes this is inconvenient, such as when working with large CSV files that don't need to be on GitHub. In such a case, you can use a `.gitignore` file to ensure that `git` does not add these files to the index when using `git add`. For example, if one wants to ignore all CSVs, simply make a file called `.gitignore` in your working directory, then add the line `*.csv`. This will ignore all files with the extension `.csv`.
+By default, `git add .` or `git add *` will add all files within a folder. Sometimes this is inconvenient, such as when working with large CSV files that don't need to be tracked or on GitHub. In such a case, you can use a `.gitignore` file to ensure that `git` does not add these files to the index when using `git add`. For example, if one wants to ignore all CSVs, simply make a file called `.gitignore` in your working directory, then add the line `*.csv`. This will ignore all files with the extension `.csv`.
 
 # Homework Workflow
-1.  Use `git clone` through the command line to clone this repository. (We recommend that you do not clone or upload using github desktop nor the website because later in the semester there will be assignments for which this will not be possible.)
+1. Use `git clone` through the command line to clone this repository. (We recommend that you do not clone or upload using GitHub desktop nor the website because later in the semester there will be assignments for which this will not be possible.)
 2. Rename `pset_template.Rmd` as directed by the homework. Complete the assignment within this renamed file.
 3. Delete the `pset_template.html` file from your repository. It only exists as an example.
 4. Use `knitr` to create an html document of your assignment. It should have the same name as the `.Rmd` file, but with a `.html` extension.
