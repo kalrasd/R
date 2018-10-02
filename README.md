@@ -3,9 +3,26 @@ Throughout the course you will use GitHub to submit homework.
 
 GitHub provides online storage with version control using software called `git`. Everytime you commit to a change, `git` tracks those changes. This is useful when you want to go back to look at old work without storing multiple copies of a file and also allows for sophisticated collaboration on shared files.
 
+
+## Overview
+
+Here's an example of the commands you will use in the order you will use them. After, we provide an explanation of the commands and other useful information about `git`.
+```
+git clone https://github.com/ganong-harris/ps1-fall-2018-$USERNAME
+
+# Do some work
+
+git add ps1.pdf ps1.Rmd
+git rm pset_template.*
+git commit -m "halfway through ps1"
+git push
+```
+
+## Explanation
+
 For the purposes of this class, we will only use a few of the many available `git` commands:
 
-## clone
+### clone
 `git clone` creates a copy of a local or GitHub repository (repo). By cloning a repo, we can download files from GitHub, make changes locally, and then push those changes back to GitHub to make them available to others. Cloning a GitHub repo will also set that repo as the default remote repo (the default location to push to). The syntax for cloning from GitHub is:
 
 `git clone https://github.com/$username/$repo`
@@ -14,7 +31,7 @@ Replacing the username and repository name as appropriate. By default, `git clon
 
 `git clone https://github.com/$username/$repo /path/to/directory`
 
-## add
+### add
 Once a repository is cloned, you can make local changes to the files in that repo. For `git` to recognize those changes, you must tell it which files to track. Using `git add` will add files (or their changes) to `git`'s indexing system. You must use `git add` to update the index each time you make changes to a file or add a new file to your local repository. The syntax of `git add` is:
 
 `git add filename`
@@ -25,7 +42,7 @@ You can also use glob patterns (wildcards) to specify which files you want to ad
 
 Where `*` is a wildcard character. You can also use `git add .` to add everything in your working directory.
 
-## commit
+### commit
 Once you've added files or changes, you need to commit them. `git commit` is a way to take a snapshot of the state of your files, i.e. *commit* your changes to `git`'s memory. Each commit represents your files at a specific point in time, and you can jump back to any one of those points without losing data. You must commit before pushing to GitHub. To commit files or changes inside files, first use `git add`, then use:
 
 `git commit -m "message"`
@@ -39,7 +56,7 @@ After committing your changes, you can now push your commit to GitHub. If you've
 
 This will push any files or changes you've made to the remote repository, in this case GitHub, where you can view them online.
 
-## Using .gitignore
+### Using .gitignore
 By default, `git add .` or `git add *` will add all files within a folder. Sometimes this is inconvenient, such as when working with large CSV files that don't need to be tracked or on GitHub. In such a case, you can use a `.gitignore` file to ensure that `git` does not add these files to the index when using `git add`. For example, if one wants to ignore all CSVs, simply make a file called `.gitignore` in your working directory, then add the line `*.csv`. This will ignore all files with the extension `.csv`.
 
 # Homework Workflow
