@@ -49,12 +49,19 @@ Once you've added files or changes, you need to commit them. `git commit` is a w
 
 Where `message` is something describing the changes you've made. Most first time commits use the message `Initial commit`.
 
-## push
+### push
 After committing your changes, you can now push your commit to GitHub. If you've cloned a GitHub repo, `git` will push back to that repo by default. As such, the syntax for `git push` is simply:
 
 `git push`
 
 This will push any files or changes you've made to the remote repository, in this case GitHub, where you can view them online.
+
+### pull
+If you want to retrieve changes made to a remote repository, such as one on GitHub, you can use `git pull`. Pulling will download changes to your local repository. Assuming you've already set the remote repository or used `git clone`, the syntax of pulling is simply:
+
+`git pull`
+
+Note that if you have unadded/unindexed changes in your files, `git pull` will overwrite them.
 
 ### Using .gitignore
 By default, `git add .` or `git add *` will add all files within a folder. Sometimes this is inconvenient, such as when working with large CSV files that don't need to be tracked or on GitHub. In such a case, you can use a `.gitignore` file to ensure that `git` does not add these files to the index when using `git add`. For example, if one wants to ignore all CSVs, simply make a file called `.gitignore` in your working directory, then add the line `*.csv`. This will ignore all files with the extension `.csv`.
