@@ -1,27 +1,61 @@
 ---
-title: "The Title Here"
-author: "saurabh"
-date: "The Date Here"
+title: "Assignment 1"
+author: "Saurabh Kalra"
+date: "10/05/2018"
 output:
   html_document:
-    number_sections: true
+    number_sections: yes
+  pdf_document: default
 ---
 **Front matter**
 
 This submission is my work alone and complies with the 30531 integrity policy.
   
-  Add your initials to indicate your agreement: **__**
+ Add your initials to indicate your agreement: **SK**
+ 
 
+---
 
-```{r message=FALSE, warning=FALSE}
-# LOAD LIBRARIES HERE
-library(tidyverse)
-```
 
 # Setup
 
+## Installation
+
+Ans 4 and 5. Below in the code.
+
+```{r message=FALSE, warning=FALSE, eval = FALSE}
+library(tidyverse)
+Install devtools
+install.packages("devtools")
+devtools::install_github("hadley/r4ds")
+```
+
+Ans 6. Stack overflow account information -kalras@uchicago.edu
+Ans 7. My Github id  -  kalrasd
+Ans 8. RMD file name changed to ps1.Rmd
+Ans 9. Packages installed below and checked if new packages list is empty and it printed  install successful as was instruction in code.
+
+---
+```{r message=FALSE, warning=FALSE, eval = FALSE}
+
+
+#Installing and checking of packages installed
+list.of.packages <- c("tidyverse","rmarkdown", "shiny", "RMySQL", "dbplyr", "hexbin", 
+"statar", "readxl", "haven", "testthat","RgoogleMaps")
+install.packages(list.of.packages)
+new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
+if ( length(new.packages) != 0 ) {
+    new.packages
+} else {
+    print("Install successful!")
+}
+
+```
+
+
+
 # R4DS Exercises
-## Section heading goes here
+## First Steps
 <!--Please do your best to match the problem set numbering. This will happen 
     automatically if you follow the pattern of #s.
     
@@ -34,16 +68,225 @@ library(tidyverse)
     -->
     
     
-1. TEXT ANSWER GOES HERE
+1. If we run ggplot(data=mpg), light grey color plot comes with no graph on it.
+
 
 ```{r}
-# CODE GOES HERE
+library(tidyverse)
+ggplot(data = mpg)
 ggplot(mpg, aes(manufacturer)) + geom_bar()
+
+
 ```
 
-2. TEXT ANSWER GOES HERE
+2. There are 234 rows and 11 columns.  Rows represents the data enteries whereas columns represents data entry of particular type or categories.
 
 ```{r}
-# CODE GOES HERE
-ggplot(mtcars, aes(factor(cyl), mpg)) + geom_violin(aes(fill=mpg))
+library(tidyverse)
+nrow(mpg)
+ncol(mpg)
 ```
+
+
+3. Scatter plot hwy vs cyl.
+
+```{r}
+library(tidyverse)
+ggplot(data = mpg, aes(x= hwy, y= cyl)) +
+  geom_point()
+
+```
+
+4. drv variable in mpg is if the vehicle is front-wheel drive or rear wheel drive or 4 wheel drive.  drv: f = front-wheel drive, r = rear wheel drive, 4 = 4wd
+  
+  
+
+5. It's not useful because the values are scattered and are mostly in all categories.  It might be possible because as you can make any type of in the front wheel drive or rear wheel drive or four wheel drive system.
+
+```{r}
+library(tidyverse)
+ggplot(data = mpg, aes(x= class, y= drv)) +
+  geom_point()
+
+```
+
+
+## Grammar of graphics: Mapping data to aesthetics
+ 
+ 1. Relationship between  <chr>, <int> and <dbl> variable types is that these are types of the data enteries.    <chr> or character is categorical variable whereas <int> or integer and <dbl> double are the contonuous variables.
+
+```{r}
+library(tidyverse)
+?mpg
+print(mpg)
+```
+
+
+2. The color= year code makes it continuous variable while color = as.character (year) makes it categorical. There is no right or wrong here or which one is better.  I think this depends on the use.  We can make a data into categorical as well continuous depending on the need.  
+```{r}
+library(tidyverse)
+# Graph 1
+ggplot(data = mpg) +
+geom_point(mapping = aes(x=hwy, y=cty, color=year))
+# Graph 2
+ggplot(data = mpg) +
+geom_point(mapping = aes(x = hwy, y = cty, color = as.character(year)))
+```
+
+
+3.  Below is mapping of a continuous variable to size, and shape. A continuous varable cannot be mapped to shape.  The shape palette can only deal with 6 discrete values because more than 6 becomes difficult to discriminate.  A continuous variable with color aesthetics is seen as a band of colors from light whereas categotical values are seen as one color for each category.
+
+```{r}
+library(tidyverse)
+# Mapping continuous variable to size
+ggplot(data = mpg) +
+geom_point(mapping = aes(x=hwy, y=cty, size=cyl))
+#Mapping continuous variable to shape (categorical)
+#ggplot(data = mpg) +
+#geom_point(mapping = aes(x = hwy, y = cty, shape = cyl))
+
+# Mapping categorical variable to size
+ggplot(data = mpg) +
+geom_point(mapping = aes(x=hwy, y=cty, size=trans))
+# Mapping categorical variable to shape
+ggplot(data = mpg) +
+geom_point(mapping = aes(x = hwy, y = cty, shape = trans))
+
+```
+
+
+4.  Code was run successfully but color aesthetics divided data by a variable that gives a boolean TRUE or FALSE value.  Here, in the graph if displ is less than 5 it is True and if displ is more than 5, it is False.
+```{r}
+library(tidyverse)
+ggplot(data = mpg) +
+geom_point(mapping = aes(x=hwy, y=cty, color=displ<5))
+
+```
+
+
+
+5.  Points are not blue because color is supposed to be part of geom_point.  It can be part of aesthetics if needed for arguments how aesthetics should display like in previous question where color = displ < 5.
+
+```{r}
+library(tidyverse)
+ggplot(data = mpg) +
+geom_point(mapping = aes(x = displ, y = hwy, color = "blue"))
+
+#corrected code
+ggplot(data = mpg) +
+geom_point(mapping = aes(x = displ, y = hwy), color = "blue")
+```
+
+
+## Grammar of graphics: Facets
+
+1. Facets looks at the variable and instruction.  It looks at our instruction if needs to draw columns or rows.  It then looks at the variable according to which it divides the grids.  If variable is categorical and has 3 categories, it will create three grids.  One can creates columns as well as rows as in the graph #3 below. 
+
+```{r}
+library(tidyverse)
+#graph 1
+ggplot(data = mpg) +
+geom_point(mapping = aes(x = displ, y = hwy)) +
+facet_grid(cols = vars(drv))
+
+#graph 2
+ggplot(data = mpg) +
+geom_point(mapping = aes(x = displ, y = hwy)) +
+facet_grid(rows = vars(year))
+
+#graph 3
+ggplot(data = mpg) +
+geom_point(mapping = aes(x = displ, y = hwy)) +
+facet_grid(rows = vars(year), cols = vars(drv))
+
+```
+
+2.  As I tried below, facet_grd tried to create too many columns for each value of continuous variable.  This doesnt make sense and is hardly visible.  
+
+```{r}
+library(tidyverse)
+# trying graph with continuous variable
+ggplot(data = mpg) +
+geom_point(mapping = aes(x = displ, y = hwy)) +
+facet_grid(cols = vars(displ))
+
+
+```
+
+3.  Facet_wrap is creating seperate grids instead of using color aesthetics where it is using different colors in one grid. Facet_wrap is useful if there are limited grids such as categorical or continuous but with limited values. 
+
+In this case or the code given facet_wrap works fine as there are only two years.  But otherwise if you want to see all of the values differentiation at once it will be harder to compare all facets. It would be harder to find a connection in between whereas color aesthetics would work fine if small data. Finding outliers and looking at the concentration would be easier in color aesthetics.
+
+If it is a large data set differentiating with facet_wrap would be a better way as in case of color aesthetics the points will overlap each other or will be too close to differentiate. 
+
+```{r}
+library(tidyverse)
+#using facet_wrap instead of color aesthetics
+ggplot(data = mpg) +
+geom_point(mapping = aes(x = displ, y = hwy)) +
+facet_wrap(vars(year), nrow = 2)
+
+# using color aesthetic insteaed of facet_wrap
+ggplot(data = mpg) +
+geom_point(mapping = aes(x = displ, y = hwy, color = year))
+
+```
+
+4. nrow and ncol in facet_wrap controlls how many columnns and rows of facets grids will have.  Other options to control layout are scales that control:
+scales - if scales to be fixed or free or free with one dimension like x or y axis
+dir - controls direction horizontal or vertical.
+as.table - "If TRUE, the default, the facets are laid out like a table with highest values at the bottom-right. If FALSE, the facets are laid out like a plot with the highest value at the top-right." (r studio function help)
+strip.position - "By default, the labels are displayed on the top of the plot. Using strip.position it is possible to place the labels on either of the four sides by setting strip.position = c("top", "bottom", "left", "right")" (r help)
+
+nrow and ncol are not there in facet_grid because they are controlled by the variables. 
+
+
+
+5. Reproducing the same graph as in question.
+
+```{r}
+library(tidyverse)
+ggplot(data = mpg) +
+geom_point(mapping = aes(x = class, y = hwy, color=class)) +
+facet_grid(vars(year))
+```
+
+
+6. Rotating x axis labels. (used the R genomics documentation Prof Marian Schmidt of University of Michigan) (https://rpubs.com/marschmi/118588)
+
+```{r}
+library(tidyverse)
+#rotating the x axis labels by 45 degrees using code from the documentation referenced above.
+ggplot(data = mpg) +
+geom_point(mapping = aes(x = class, y = hwy, color=class)) +
+  theme(axis.text.x = element_text(angle = 45, hjust=0)) +
+facet_grid(vars(year))
+```
+
+7. Reproducing the graph.  The shape palette can only deal with a maximum of 6 discrete values because we have more than 6 manufacturers, it becomes difficult to discriminate.
+
+
+```{r}
+library(tidyverse)
+#Reproducing the graph
+ggplot(data = mpg) +
+geom_point(mapping = aes(x = displ, y = hwy, shape = manufacturer)) +
+facet_grid(year~drv)
+```
+
+8. Continuing to use the shape aesthetic and  fixing the graph such that there is a shape for every manufacturer.
+
+(I used R studio cheat sheet to get the shapes)
+(https://www.rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf)
+
+```{r}
+library(tidyverse)
+#Reproducing the graph
+ggplot(data = mpg) +
+scale_shape_manual(values = c(0:25)) + 
+geom_point(mapping = aes(x = displ, y = hwy, shape = manufacturer)) +
+facet_grid(year~drv)
+```
+
+
+
