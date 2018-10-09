@@ -209,6 +209,8 @@ facet_grid(rows = vars(year), cols = vars(drv))
 
 2.  As I tried below, facet_grd tried to create too many columns for each value of continuous variable.  This doesnt make sense and is hardly visible.  
 
+FEEDBACK: *Why* did it do this? What is `facet_grid()` actually doing?
+
 ```{r}
 library(tidyverse)
 # trying graph with continuous variable
