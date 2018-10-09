@@ -10,9 +10,9 @@ output:
 **Front matter**
 
 This submission is my work alone and complies with the 30531 integrity policy.
-  
+
  Add your initials to indicate your agreement: **SK**
- 
+
 
 ---
 
@@ -40,7 +40,7 @@ Ans 9. Packages installed below and checked if new packages list is empty and it
 
 
 #Installing and checking of packages installed
-list.of.packages <- c("tidyverse","rmarkdown", "shiny", "RMySQL", "dbplyr", "hexbin", 
+list.of.packages <- c("tidyverse","rmarkdown", "shiny", "RMySQL", "dbplyr", "hexbin",
 "statar", "readxl", "haven", "testthat","RgoogleMaps")
 install.packages(list.of.packages)
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
@@ -56,23 +56,26 @@ if ( length(new.packages) != 0 ) {
 
 # R4DS Exercises
 ## First Steps
-<!--Please do your best to match the problem set numbering. This will happen 
+<!--Please do your best to match the problem set numbering. This will happen
     automatically if you follow the pattern of #s.
-    
-    One # gives you a main heading; 
-    two ## give a sub-heading. 
-    For the next layer of numbering, please follow the numbering manually; 
+
+    One # gives you a main heading;
+    two ## give a sub-heading.
+    For the next layer of numbering, please follow the numbering manually;
     If you are really interested in automatic numbering see a TA.
-    
+
     Try knit to html before proceeding to see what the output will look like!
     -->
-    
-    
+
+
 1. If we run ggplot(data=mpg), light grey color plot comes with no graph on it.
 
 
 ```{r}
+# FEEDBACK please follow the template. We include this line of code in a
+# chunk with message=FALSE to avoid unnecessary output.
 library(tidyverse)
+
 ggplot(data = mpg)
 ggplot(mpg, aes(manufacturer)) + geom_bar()
 
@@ -98,10 +101,13 @@ ggplot(data = mpg, aes(x= hwy, y= cyl)) +
 ```
 
 4. drv variable in mpg is if the vehicle is front-wheel drive or rear wheel drive or 4 wheel drive.  drv: f = front-wheel drive, r = rear wheel drive, 4 = 4wd
-  
-  
+
+
 
 5. It's not useful because the values are scattered and are mostly in all categories.  It might be possible because as you can make any type of in the front wheel drive or rear wheel drive or four wheel drive system.
+
+FEEDBACK this isn't backed up by the plot there are several places with no dot.
+What about the data make the graph the way it is? 
 
 ```{r}
 library(tidyverse)
@@ -112,7 +118,7 @@ ggplot(data = mpg, aes(x= class, y= drv)) +
 
 
 ## Grammar of graphics: Mapping data to aesthetics
- 
+
  1. Relationship between  <chr>, <int> and <dbl> variable types is that these are types of the data enteries.    <chr> or character is categorical variable whereas <int> or integer and <dbl> double are the contonuous variables.
 
 ```{r}
@@ -180,7 +186,7 @@ geom_point(mapping = aes(x = displ, y = hwy), color = "blue")
 
 ## Grammar of graphics: Facets
 
-1. Facets looks at the variable and instruction.  It looks at our instruction if needs to draw columns or rows.  It then looks at the variable according to which it divides the grids.  If variable is categorical and has 3 categories, it will create three grids.  One can creates columns as well as rows as in the graph #3 below. 
+1. Facets looks at the variable and instruction.  It looks at our instruction if needs to draw columns or rows.  It then looks at the variable according to which it divides the grids.  If variable is categorical and has 3 categories, it will create three grids.  One can creates columns as well as rows as in the graph #3 below.
 
 ```{r}
 library(tidyverse)
@@ -213,11 +219,11 @@ facet_grid(cols = vars(displ))
 
 ```
 
-3.  Facet_wrap is creating seperate grids instead of using color aesthetics where it is using different colors in one grid. Facet_wrap is useful if there are limited grids such as categorical or continuous but with limited values. 
+3.  Facet_wrap is creating seperate grids instead of using color aesthetics where it is using different colors in one grid. Facet_wrap is useful if there are limited grids such as categorical or continuous but with limited values.
 
 In this case or the code given facet_wrap works fine as there are only two years.  But otherwise if you want to see all of the values differentiation at once it will be harder to compare all facets. It would be harder to find a connection in between whereas color aesthetics would work fine if small data. Finding outliers and looking at the concentration would be easier in color aesthetics.
 
-If it is a large data set differentiating with facet_wrap would be a better way as in case of color aesthetics the points will overlap each other or will be too close to differentiate. 
+If it is a large data set differentiating with facet_wrap would be a better way as in case of color aesthetics the points will overlap each other or will be too close to differentiate.
 
 ```{r}
 library(tidyverse)
@@ -238,7 +244,7 @@ dir - controls direction horizontal or vertical.
 as.table - "If TRUE, the default, the facets are laid out like a table with highest values at the bottom-right. If FALSE, the facets are laid out like a plot with the highest value at the top-right." (r studio function help)
 strip.position - "By default, the labels are displayed on the top of the plot. Using strip.position it is possible to place the labels on either of the four sides by setting strip.position = c("top", "bottom", "left", "right")" (r help)
 
-nrow and ncol are not there in facet_grid because they are controlled by the variables. 
+nrow and ncol are not there in facet_grid because they are controlled by the variables.
 
 
 
@@ -283,10 +289,7 @@ facet_grid(year~drv)
 library(tidyverse)
 #Reproducing the graph
 ggplot(data = mpg) +
-scale_shape_manual(values = c(0:25)) + 
+scale_shape_manual(values = c(0:25)) +
 geom_point(mapping = aes(x = displ, y = hwy, shape = manufacturer)) +
 facet_grid(year~drv)
 ```
-
-
-
