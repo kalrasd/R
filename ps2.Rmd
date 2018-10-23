@@ -1,0 +1,569 @@
+---
+title: "Assignment 2"
+author: "Saurabh Kalra"
+date: "Oct 8, 2018"
+output:
+  html_document:
+    number_sections: true
+---
+**Front matter**
+
+This submission is my work alone and complies with the 30531 integrity policy.
+  
+  Add your initials to indicate your agreement: **SK**
+
+
+```{r message=FALSE, warning=FALSE}
+# LOAD LIBRARIES HERE
+library(tidyverse)
+library(dplyr)
+```
+
+# Setup
+
+# R4DS Exercises
+## Debugging mindset
+<!--Please do your best to match the problem set numbering. This will happen 
+    automatically if you follow the pattern of #s.
+    
+    One # gives you a main heading; 
+    two ## give a sub-heading. 
+    For the next layer of numbering, please follow the numbering manually; 
+    If you are really interested in automatic numbering see a TA.
+    
+    Try knit to html before proceeding to see what the output will look like!
+    -->
+    
+    
+1. It didn't run because the name of the variable was wrong. i was replaced with l. 
+
+2. Tweaking the command.
+* data ,tidyverse, diamonds and filter spelling was wrong 
+* you use == to look for cyl = 8, only while defining variable you use cyl = 8
+
+```{r}
+
+library(tidyverse)
+ggplot(data = mpg) + 
+  geom_point(mapping = aes(x = displ, y = hwy))
+filter(mpg, cyl == 8) 
+filter(diamonds, carat > 3)
+```
+
+3. Keyboard console shortcut help comes with k + Alt + shift.  Keyboard shortcut help also comes from tools. 
+
+
+##  Grammar of graphics: geoms
+
+
+1. We would use geom_line() to draw a line chart, geom_area() for area chart, geom_histogram() for histogram and geom_boxplot() for boxplot.
+
+
+2. No, they would not look different.  Both programs give the same instruction you can write mapping in ggplot or geom_point/geom_smooth it doesnt't matter.
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+geom_point() +
+geom_smooth()
+
+ggplot() +
+geom_point(data = mpg, mapping = aes(x = displ, y = hwy)) +
+geom_smooth(data = mpg, mapping = aes(x = displ, y = hwy))
+
+```
+
+
+
+3. The se argument is for the standard error in the geom_smooth line.  It creates a highlighted area next to smooth line to show standard error.
+The default value passed to se is TRUE.  You can switch off se by mentioning se=FALSE in argument.
+
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = hwy)) +
+geom_point() +
+geom_smooth()
+```
+
+
+4. Reproduced the graphs.  
+
+```{r}
+library(ggplot2)
+ggplot(data = mpg, mapping = aes(x = displ, y = cty))+
+geom_point(aes(color = drv)) +
+geom_smooth(se=FALSE)
+```
+
+
+
+5.Improving the graph by:
+
+• make line black
+• make the x- and y-axes labels more informative using + labs()
+• use an informative title to capture the headline finding of your analysis
+• remove the legend (google might be helpful to learn how)
+
+
+I feel changes were helpful especially labelling as well as changing the line color to black. Title also brought a  life to the graph as it become so easier what graph is about and what is our motive.  
+
+I feel removing the legend was not helpful as we do not know what do colors dot imply.  
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = displ, y = cty))+
+labs(title = "The connection between city gas mileage and car characteristics ",x = "engine displacement, in litres", y= "city miles per gallon") +
+geom_point(show.legend = FALSE, aes(color = drv)) +
+geom_smooth(se=FALSE, color= "black")
+```
+
+
+### Grammar of graphics: Statistical transformations
+
+1. geom_bar and geom_col construct bar charts.  The difference is that geom_bar counts the frequency of the each group and then constructs y axis of count according to the x frequency in data.
+geom_col doesn't do this unless instructed in argument.  It requires x as well as y variable to plot the values of the x variable against the y variable you give.  Bar height depends on y variable.
+
+2. Replaced geom with stat_count to construct the same graph.
+
+```{r}
+ggplot(data=mpg, aes(x=hwy)) + geom_bar()
+
+ggplot(data=mpg, aes(x=hwy)) + stat_count()
+
+```
+
+3.Computed variables by stat_smooth (R HELP) 
+y predicted value
+ymin - lower pointwise confidence interval around the mean 
+ymax - upper pointwise confidence interval around the mean 
+se - standard error 
+
+There’s parameters such as method which determines which method is used to calculate the predictions and confidence interval, and some other arguments that are passed to that.(answer rstudio pub)
+These variables are displayed on the plot.  Y is the line the predicted. 
+ymin is the lowest value of y
+ymax is highest value of y
+se is standard error shown by highlighted area
+
+4.
+There are many that come in pairs 
+```{r}
+
+ggplot(mpg, aes(x=displ, y=hwy)) + stat_smooth()
+# 
+ggplot(mpg, aes(x=displ, y=hwy)) + geom_smooth()
+
+
+```
+
+
+
+5. We needed to specify the group = 1 is a dummy variable to override the problem of geom_bar function checking fair in fair or ideal in ideal which will be 100%. This tells the function that it needs to group by cut
+```{r}
+
+ggplot(data = diamonds) +
+geom_bar(mapping = aes(x = cut, y = ..prop.., group =1))
+ggplot(data = diamonds) +
+geom_bar(mapping = aes(x = cut, fill = color, y = ..prop.., group=1))
+
+```
+
+
+## grammar of graphics: Positional adjustments
+
+
+1. Points are being overlapped here as they are small integers.  In other words points are hiding each other.
+we can make transparent according to their overlapping by alpha as well as jitter points to avoid overplotting.
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+geom_point(alpha =0.25)+
+  geom_jitter()
+
+```
+
+2. width and height in geom_jitter() control the jittering.  "Amount of vertical and horizontal jitter. The jitter is added in both positive and negative directions, so the total spread is twice the value specified here.
+If omitted, defaults to 40% of the resolution of the data: this means the jitter values will occupy 80% of the implied bins. Categorical data is aligned on the integers, so a width or height of 0.5 will spread the data so it's not possible to see the distinction between the categories." (R HELP)
+
+
+3. geom_count is counting the observation and displaying them bigger if there is an overlapping.  geom_jitter is making them visible but they are all of same size.  " geom_jitter adds a small amount of random variation to the location of each point, and is a useful way of handling overplotting caused by discreteness in smaller datasets." (graphics from R4ds book)
+
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+geom_count(alpha=0.2)
+
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+geom_jitter()
+
+
+```
+
+
+4. The default position adjustment for geom_bar() is stack. You changed the position to dodge as below.
+
+```{r}
+library(ggplot2)
+ggplot(data = diamonds) + 
+geom_bar(mapping = aes(x = cut, y=..prop.., fill = color, group =color),position = "dodge")
+```
+
+## grammar of graphics: Coordinate systems
+
+1.  coord_flip()  flips the coordinartes of the graph as tried below.
+```{r}
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+geom_jitter() + 
+  coord_flip()
+
+
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+geom_jitter()
+```
+
+
+2. cty and hwy have a linear relationship.  If the cars provide good hwy average, they provide good cty average as well.  The cars that give poor average in cty, also gives poor average on hwy. 
+Using coord_fixed() was helpful when graph was zoomed in/out on the console, it was not distorted.  x and y coordinates were on equal intervals to make comparison easier.
+
+Using geom_abline() constructs a line with a slope of 1 or 45 degrees to help us see the regression.  
+
+```{r}
+library(ggplot2)
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+geom_jitter() + 
+  coord_fixed()+
+  geom_abline()
+
+
+ggplot(data = mpg, mapping = aes(x = cty, y = hwy)) +
+geom_jitter()
+```
+
+
+## Transformations: Filter rows with filter()
+
+1. Use nycflights13 library to solve using filter
+a.Had an arrival delay of three or more hours
+
+```{r}
+library(nycflights13)
+# 1. had an arrival delay of 3 hours or more
+flights <- nycflights13::flights
+filter(flights, arr_delay>=180)
+```
+
+b. Flew to Houston (IAH or HOU)
+
+below.
+```{r}
+# 2.  Flew to Houston (IAH or HOU)
+filter(flights, dest == "IAH"|dest == "HOU")
+
+```
+
+
+c.  Were operated by United, American, or Southwest
+```{r}
+#3. Were operated by United, American, or Southwest
+filter(flights, carrier  %in%  c("UA", "AA", "WN"))
+
+```
+
+d.  Departed in spring (March, April, and June)
+
+```{r}
+
+# 4. Departed in spring (March, April, and June)
+filter(flights, month %in% c(3, 4, 6))
+
+```
+
+ 
+e.Arrived more than two hours late, but didn’t leave late
+
+```{r}
+
+#5.  Arrived more than two hours late, but didn’t leave late
+filter(flights, arr_delay >120, dep_delay <=0)
+
+```
+
+f. Were delayed by at least an hour, but made up over 30 minutes in flight
+
+```{r}
+
+
+#6.Were delayed by at least an hour, but made up over 30 minutes in flight
+filter(flights, dep_delay >=60, dep_delay - arr_delay > 30)
+
+```
+
+1g. Departed between midnight and 5am (inclusive)
+
+```{r}
+
+
+#7. Departed between midnight and 5am (inclusive)
+filter(flights, dep_time <=0500 | dep_time ==2400)
+
+```
+
+2. In the graph you created below, there is one green point that has very low gas mileage.
+That car is dodge	caravan 2wd
+
+```{r}
+
+ggplot(data = mpg, mapping = aes(x = displ, y = cty)) +
+  geom_point(aes(color = drv))+
+geom_smooth(se = FALSE)
+
+
+filter(head(mpg[order(mpg$cty, decreasing=FALSE), ], 10), drv=="f")
+
+```
+
+
+3.It is wrong because you need to use is.na to look for NA values. There is no NA entered there but there is null value.
+
+```{r}
+
+filter(flights, is.na(arr_time))
+```
+
+
+4. 8255 flights have missing dep_time. 
+All other variables that have missing values is displayed. 
+They represent they have no values in them.
+
+```{r}
+# if dep_time has any na values 
+sum(is.na(flights$dep_time))
+
+# checking for other missing 
+flights%>%
+filter(is.na(dep_time)) %>%
+map(~sum(is.na(.)))
+
+```
+
+
+5. Only the arr_time =1800 values will be displayed because of the condition you have specified.
+
+6.NA | True evaluate to TRUE as in boolean will pick up true as the condition is or.  
+
+7.FALSE & NA evaluate to FALSE as "&" operators wants both the conditions . 
+
+## Transformations: Sort columns with arrange() 
+
+1. Arranged such that NA values in starting.
+
+```{r}
+#checked for dep time
+flights %>%
+arrange(desc(is.na(dep_time)))
+
+```
+
+
+2. Sort flights to find the most delayed flights by arrival time
+
+```{r}
+flights %>%
+arrange(desc(arr_delay))
+
+```
+
+
+
+3. Find the flights that left earliest relative to their scheduled departure.
+
+```{r}
+flights %>%
+arrange(dep_delay)
+
+```
+
+## Transformations: Select columns with select()
+
+1. Brainstorm as many ways as possible to select dep_time, dep_delay, arr_time, and arr_delay from
+flights
+
+```{r}
+flights %>%
+select(dep_time, dep_delay, arr_time, arr_delay)
+
+select(flights, c(dep_time, dep_delay, arr_time, arr_delay))
+
+select(flights, dep_time, dep_delay, arr_time, arr_delay)
+
+
+```
+
+
+2.  It doesn't make a difference, it selects only once. 
+
+```{r}
+ select(flights, arr_time, arr_time)
+
+```
+
+
+3. All the columns that had time in the column names were selected. Yes it surprises us as the TIME was also not case sensitive.  
+
+yes default is insensitive to case but we can add ignore.case = FALSE to make it case sensitive in contains.
+
+```{r}
+select(flights, contains("TIME"))
+
+select(flights, contains("TIME", ignore.case = FALSE))
+
+```
+
+
+
+
+##Transformations: Add new variables with mutate()
+1. Converted them to minutes from the midnight.  
+Hours multiplied by 60 plus minutes for both the columns.
+
+```{r}
+mutate(flights,dep_time = ((dep_time %% 100) + (dep_time %/% 100)*60),sched_dep_time= ((sched_dep_time %% 100) + (sched_dep_time %/% 100)*60))
+```
+
+2.We expect to see a linear plot of air_time and (arr_time - dep_time).  We see a weird graph with negative values.  Also it could be that air_time in minutes and other axis is in hours. Values are becomming negative as well as when we subtract time. 
+
+```{r}
+
+ggplot(flights,aes(x=air_time,y=arr_time - dep_time)) + 
+  geom_point()
+```
+
+
+3. We would have to convert the data into minutes.  I believe if the flights landing next day it would be harder to take those into account without a  loop.
+
+```{r}
+mutate(flights,dep_time= ((dep_time %% 100) +(dep_time %/% 100)*60),arr_time= ((arr_time %% 100) + (arr_time %/% 100)*60))
+#making sure for data of flights landed same day
+flights1 <- filter(flights, arr_time > dep_time)
+ggplot(flights1,aes(x=air_time,y=arr_time - dep_time)) + 
+  geom_point() +
+geom_smooth(se=FALSE)
+```
+
+
+
+4.There will be error if air_time is not equal to the arr_time - dep_time or is too far off from air_time.  It could be calculation errors.  Time differences between zones or data inputting human errors. 
+
+I have set tollerance level as 100 minutes
+
+```{r}
+
+mutate(flights,dep_time = ((dep_time %% 100) + (dep_time %/% 100)*60),arr_time= ((arr_time %% 100) + (arr_time %/% 100)*60))
+flights$diff1 <- flights$dep_time - flights$arr_time
+flights$diff2 <- flights$diff1 - flights$air_time
+filter(flights, diff2 < 100)
+
+```
+
+5. dep_time, sched_dep_time, and dep_delay should be related.  I expect that in most data dep_delay should be equal to (sched_dep_time - dep_time).  But there is a chance that delay was more than an hour so substraction won't work as dep_delay is in minutes whereas dep_time is in HHMM
+number of rows of total data - 336776
+number of rows that had a difference of 0 after the calculations and filtering - 228744
+
+So still there is a lot of data rows that didn't match.
+
+```{r}
+
+
+mutate(flights,dep_time = ((dep_time %% 100) + (dep_time %/% 100)*60),sched_dep_time= ((sched_dep_time %% 100) + (sched_dep_time %/% 100)*60))
+flights$diffdelay <-flights$dep_time -  flights$sched_dep_time
+flights$diff <- flights$diffdelay - flights$dep_delay
+#now to check flights$diff == 0
+filter(flights, diff == 0)
+
+```
+
+
+
+
+6. The 10 most delayed flights using a ranking function. Ties are not here in this data but can be handled by setting row_number(): equivalent to rank(ties.method = "first")
+
+
+```{r}
+
+filter(flights, min_rank(desc(dep_delay))<11)
+top_n(flights, n=10, wt = dep_delay)
+
+```
+
+
+# Public Sector Application
+
+## Download BTS data
+
+```{r, eval=FALSE}
+knitr::opts_knit$set(root.dir = '/Users/apple/Desktop/skills1' )
+library(data.table) 
+file_names <- dir("/Users/apple/Desktop/skills1") #where you have your files
+
+
+library(readr)
+library(dplyr)
+chi.flights = lapply(file_names, read_csv) %>% bind_rows()
+```
+
+## Data Description
+1. Tail number is the unique identifier for each flight as they are unique.
+
+2. print, head, str, glimpse, View, summary are run below. 
+print/head/str/glimpse are giving similar information.  I would use the head/print to view the data. 
+
+List of non redundant methods 
+a. head - Returns the first or last parts of a vector, matrix, table, data frame or function. Since head() and tail() are generic functions, they may also have been extended to other classes.
+b. View - Invoke a spreadsheet-style data viewer on a matrix-like R object.
+c. Summary - summary is a generic function used to produce result summaries of the results of various model fitting functions. 
+
+```{r,eval=FALSE}
+print(chi.flights)
+
+print(head(chi.flights))
+
+str(chi.flights)
+
+glimpse(chi.flights)
+
+View(chi.flights)
+
+summary(chi.flights)
+
+```
+
+
+## Data Validation 
+
+1.
+```{r}
+library(testthat)
+test_that("we have the right number
+of rows",expect_equal(nrow(chi.flights),675822))
+```
+
+Because of the conditions you put into the webform, all flights should be to or from Illinois airports.
+Let’s check this.
+
+2. 
+```{r}
+library(testthat)
+testforIL <- filter(chi.flights, ORIGIN_STATE_ABR == "IL" | DEST_STATE_ABR == "IL")
+test_that("we have the right number
+of rows",expect_equal(nrow(testforIL),675822))
+
+```
+
+
+
+3. After dropping flights. Filtered to go to mdw or ord
+344131 flights are left.
+```{r}
+filter(chi.flights, DEST!= "MDW" & DEST!= "ORD")
+
+```
+
+
+6.  Data is not matching for three highest volume airlines at ohare because data is old of 2016 and sometimes not all airlines are taken into account
+

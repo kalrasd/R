@@ -1,0 +1,623 @@
+---
+title: "Problem Set 3" 
+author: "Elaine Li and Saurabh Kalra"
+date: "October 21, 2018"
+output:
+  html_document:
+    number_sections: true
+---
+**Front matter**
+
+This submission is my work alone and complies with the 30531 integrity policy.
+  
+  Add your initials to indicate your agreement: **EL & SK**
+
+
+```{r message=FALSE, warning=FALSE}
+# LOAD LIBRARIES HERE
+library(tidyverse)
+library(ggplot2)
+library(nycflights13)
+library(dplyr)
+library(tidyr)
+library(Hmisc)
+library(haven)
+```
+
+# R4DS Exercises
+## Transformations: Summarizing Grouped Data
+
+Ans 1.1.1.a.
+
+327,346 flights were not cancelled. 
+
+```{r}
+not_cancelled <- filter(flights, !is.na(dep_delay), !is.na(arr_delay))
+
+not_cancelled %>%
+  group_by(carrier) %>%
+  summarise(
+    n(),
+    min(distance),
+    max(distance)
+  ) %>%
+  arrange(desc(carrier))
+
+```
+
+Ans 1.1.1.b
+
+The following airlines only offer flights from New York City airports to 
+one other airport: 
+
+* AS - Alaka Airlines
+
+* F9 - Frontier Airlines
+
+* HA - Hawaiian Airlines
+
+```{r}
+not_cancelled %>%
+  group_by(carrier, dest) %>%
+  summarise(n()) %>%
+  summarise(n_destinations = n_distinct(dest)) %>%
+  arrange(n_destinations)
+```
+
+Ans 1.1.2
+
+* From a passengers' perspective, arrival delay is more important because departure delay only accounts for the delay while at the origin city whereas arrival delay accounts for the delay leaving from origin city, delay while in 
+air, time spent rerouting, and/or time made up while in air. 
+
+Ans 1.1.3.a
+```{r}
+median_arr_delay <-
+  flights %>%
+  group_by(carrier) %>%
+  na.omit(flights) %>%
+  summarise(pct_50 = quantile(arr_delay, 0.5))
+
+print(median_arr_delay)
+```
+
+Ans 1.1.3.b
+
+* Though ExpressJet has a median arrival delay of -7 minutes and US Airways 
+has a median arrival delay of -6 minutes, we cannot say that ExpressJet is a 
+more reliable airline because we don't know the full distribution of each airlines' arrival delay. It's possible that ExpressJet has about half its 
+flights that leave earlier than 7 minutes and then the other half that leave 
+an hour late in comparison to US Airways, which might have a more even distribution. 
+
+
+Ans 1.1.3.c
+
+* average arrival delay of flights
+
+* the interquartile range (IQR) of arrival delays
+
+* mean absolute deviation of arrival delays
+
+* standard deviation of arrival delay time
+
+Ans 1.1.3.d
+
+Across the four metrics, these airlines have consistently ranked amongst 
+the most delayed: 
+
+* Frontier Airlines (F9)
+
+* Mesa Airlines (YV)
+
+* AirTran Airways (FL)
+
+* ExpressJet Airways (EV)
+
+* Endeavor Air (9E)
+
+```{r}
+assess_arr_delay <-
+  flights %>%
+  group_by(carrier) %>%
+  na.omit() %>%
+  summarise(
+    avg_delay = mean(arr_delay),
+    iqr_delay = IQR(arr_delay),
+    sd_delay = sd(arr_delay),
+    mad_delay = mad(arr_delay)
+  ) %>%
+  arrange(desc(avg_delay))
+
+print(assess_arr_delay)
+```
+
+Ans 1.1.4
+```{r}
+# Given Method
+not_cancelled %>% count(dest)
+
+# Alternative Method
+not_cancelled %>%
+  group_by(dest) %>%
+  summarise(n())
+
+# Given Method
+not_cancelled %>% count(tailnum, wt = distance)
+
+# Alternative Method
+not_cancelled %>%
+  group_by(tailnum) %>%
+  tally(wt = distance)
+```
+
+Ans 1.1.5.
+
+* The two days that are extreme outliers are:
+
+    + February 8, 2013
+    
+    + February 9, 2013
+    
+* It is possible that these two days were blizzard days that made it difficult 
+for flights to take off or land in the New York area. The backlog of flights 
+from the first day probably then rolled over to the second day as carriers 
+tried to reschedule or reroute passengers. 
+
+```{r}
+flights <-
+  flights %>%
+  group_by(month, day) %>%
+  mutate(
+    num_flights = n(),
+    cancelled = ifelse(is.na(arr_time), 1, 0),
+    num_cancelled = sum(cancelled == 1),
+    prop_cancelled = (num_cancelled / num_flights),
+    dates = paste(month.abb[month], day, sep = "-")
+  )
+
+ggplot(flights) +
+  geom_bar(aes(
+    x = dates,
+    y = (num_cancelled / num_flights)
+  ),
+  stat = "identity"
+  ) +
+  labs(
+    x = "Dates",
+    y = "Proportion Cancelled"
+  )
+
+
+# Recognizing that the outliers fall in February, we filter to zoom in to Feb.
+ggplot(flights %>% filter(month == 2)) +
+  geom_bar(aes(
+    x = dates,
+    y = (num_cancelled / num_flights)
+  ),
+  stat = "identity"
+  ) +
+  labs(
+    x = "Dates",
+    y = "Proportion Cancelled"
+  ) +
+  coord_flip()
+```
+
+Ans 1.1.6
+
+* Flights to Columbia, SC experience the worse delay times while flights to Lexington, Kentucky experience the least amount of delay time.
+
+```{r}
+avg_delays_by_dest <-
+  flights %>%
+  group_by(dest) %>%
+  na.omit() %>%
+  summarise(average_delay_mins = mean(arr_delay)) %>%
+  mutate(rank_dest = rank(-average_delay_mins)) %>%
+  arrange(rank_dest)
+
+print(avg_delays_by_dest)
+```
+
+## Transformations:Grouped operations with mutate() and (filter())
+
+Ans1.2.1.
+
+*N15910 has most minutes of delay.  It was found out by summing minutes of all arrival delays of a particular tailnum and then arranging in descending order.
+```{r }
+not_cancelled <-
+  flights %>%
+  filter(!is.na(dep_delay), !is.na(arr_delay))
+
+not_cancelled %>%
+  group_by(tailnum) %>%
+  summarise(sumdelay = sum(arr_delay)) %>%
+  arrange(desc(sumdelay))
+```
+
+Ans1.2.2.
+If you want to avoid delays as much as possible, you should fly in the 
+early mornings at 05 hour flights as we can see from the plot.
+
+```{r }
+not_cancelled %>%
+  group_by(hour) %>%
+  summarise(delay = sum(arr_delay > 5) / n()) %>%
+  ggplot(aes(x = hour, y = delay)) +
+  geom_point()
+```
+
+Ans1.2.3. 
+All the destinations that are flown by at least two carriers.
+
+```{r }
+flights %>%
+  group_by(dest) %>%
+  summarise(flownby = n_distinct(carrier)) %>%
+  filter(flownby >= 2)
+```
+
+
+Ans 1.2.4a 
+Used lag(), arrange and group_by function to arrange data.
+
+Ans1.2.4b 
+Plotted the previous flight delay with departure delay. Points were 
+clutterred - used jitter and alpha for better visualization.
+
+```{r }
+not_cancelled %>%
+  group_by(origin) %>%
+  arrange(year, month, day, hour, minute) %>%
+  filter(!is.na(dep_delay)) %>%
+  mutate(prev_flightdelay = lag(dep_delay)) %>%
+  
+  ggplot(aes(x = prev_flightdelay, y = dep_delay)) +
+  geom_point(alpha = 0.3, position = position_jitter()) +
+  geom_smooth(method = "lm")
+```
+
+
+
+Ans1.2.5a. 
+Computed below airtime and medianairtime table.  Most delayed 
+flights that was delayed are arranged.
+
+```{r }
+not_cancelled %>%
+  group_by(dest) %>%
+  mutate(medianairtime = median(air_time), diff = air_time - medianairtime) %>%
+  select(year, month, day, dest, air_time, medianairtime, diff, hour) %>%
+  arrange(desc(diff))
+```
+
+Ans1.2.5b. 
+Flights are arranged according to speed in air.
+
+```{r }
+not_cancelled %>%
+  group_by(dest) %>%
+  mutate(speed = distance / air_time) %>%
+  select(
+    year, month, day, dest, air_time, speed, hour, minute, dep_delay,
+    flight, carrier
+  ) %>%
+  arrange(desc(speed))
+```
+
+
+Ans1.2.6 
+Counted number of flights before the first delay of greater than 1 hour.
+
+```{r }
+not_cancelled %>%
+  arrange(tailnum, time_hour) %>%
+  group_by(tailnum) %>%
+  mutate(delay_more_than1hr = dep_delay > 60) %>%
+  mutate(Before_firstdelay = cumsum(delay_more_than1hr)) %>%
+  filter(Before_firstdelay < 1) %>%
+  count() %>%
+  arrange(-n)
+  
+```
+
+## Exploratory Data Analysis
+
+### EDA: Exploring variation
+
+Ans1.3.1.1a 
+Overall pattern suggests, there are less diamonds that are expensive, more quantity of diamonds are available that are cheaper.  Histogram of 
+diamonds$price is skewed to right / positive.  yes it fits the expectation as 
+more buyers will be for low cost diamonds than expensive ones.  Another explanation is that expensive diamonds must be rare so less quantity available. 
+
+
+```{r}
+print(summary(diamonds$price))
+
+ggplot(data = diamonds, aes(price)) +
+  geom_histogram()
+```
+
+Ans1.3.1.1.b. 
+Yes, there is a surprising thing in the diamonds data. Diamonds are less availablecompared to other values for price around $1400. We see a white 
+gap when bins were increased or binwidth was reduced.
+
+```{r}
+ggplot(data = diamonds, aes(diamonds$price)) +
+  geom_histogram(bins = 5000)
+```
+
+Ans1.3.1.2a. 
+Data is skewed to right.  Yes, it fits our expectations that less diamonds 
+are available for (carats > 2).  So the count for higher prices was lower.  
+Also as they are less in market or availability they are expensive. 
+
+```{r}
+print(summary(diamonds$carat))
+
+ggplot(data = diamonds, aes(diamonds$carat)) +
+  geom_histogram()
+  
+```
+
+
+Ans1.3.1.2b. 
+There are 23 diamonds that are .99 carats and 1558 diamonds that are 1 
+carat. This may be because it is easier to sell something that is a round 
+number like 1 (as opposed to .99) because more is better for the consumer. 
+In the consumer's mind, moving from a <1 carat to a 1 carat diamond is like 
+moving into another level. 
+```{r}
+diamonds %>%
+  filter(carat == 1 | carat == .99) %>%
+  group_by(carat) %>%
+  summarise(n())
+```
+
+Ans1.3.1.3
+Using coord_cartesian() and its xlim/ylim arguments changes x and y axis 
+limits by zooming into the plot and does not change the underlying data. If we were to just use xlim and ylim, if observations are not in this range, they 
+will be dropped.
+
+Binwidth is how wide the bins are. If we leave binwidth on default, it attempts
+to calculate bin width by taking the range of the values in our variable and divide it by the default bins = 30. Setting binwidth overrides bins. It is best for the researcher to set binwidth that will allow for best viewing. 
+```{r}
+ggplot(data = diamonds, aes(price)) +
+  geom_histogram() +
+  coord_cartesian(xlim = c(2000, 5000))
+
+ggplot(data = diamonds, aes(price)) +
+  geom_histogram() +
+  xlim(2000, 5000)
+
+```
+
+### 1.3.2 EDA: Navigating NAs
+
+Ans1.3.2.1
+Missing values are omitted when constructing a histogram, which is created to represent continuous variables. By default, missing values (NAs) are removed 
+with a warning. If we include na.rm=TRUE, missing values are silently removed. 
+Bar charts are created for categorical values and recognizes strings 
+such as "NA". Thus, all the NAs are "counted" and considered its own category. 
+
+Ans1.3.2.2 
+In mean() and sum(), na.rm=TRUE strips missing values before starting to 
+calculate the mean and the sum. 
+
+
+
+# Public Sector Application:When should they Mayor’s tourism office host their convention?
+
+## Download BTS data
+
+```{r}
+knitr::opts_knit$set(root.dir = "/Users/apple/Desktop/skills1")
+library(data.table)
+file_names <- dir("/Users/apple/Desktop/skills1") # where you have your files
+
+
+library(readr)
+library(dplyr)
+chi.flights <- lapply(file_names, read_csv) %>% bind_rows()
+```
+
+## Choose a month
+
+Ans 2.1.1
+Average arrival delays into either Chicago ORD or MDW are the lowest during the first quarter (especially at the end of January and parts of February), in early Spring (end of March/early April), around Thanksgiving week and in the early summer (May). Days in which at least 80% of flights are on time typically fall 
+in the winter (Jan/Feb), early Spring (end of March/early April), early summer 
+(May), and around end of November. 
+
+```{r}
+
+chi.flights.delay <- 
+  chi.flights %>%
+  filter(DEST == "ORD" | DEST == "MDW") %>%
+  group_by(FL_DATE) %>%
+  summarise(AVG_DELAY_BY_DAY = mean(ARR_DELAY, na.rm = TRUE),
+            TOTAL_FL_BY_DAY = n(),
+            AVG_DAY_OF_WEEK = mean(DAY_OF_WEEK, na.rm = TRUE)) %>%
+  arrange(AVG_DELAY_BY_DAY
+  )
+
+ONTIME_FL_BY_DAY <- chi.flights %>%
+  filter(DEST == "ORD" | DEST == "MDW") %>%
+  group_by(FL_DATE) %>%
+  mutate(ON_TIME = ifelse(ARR_DELAY <= 0, 1, 0)) %>%
+  filter(ON_TIME == 1) %>%
+  summarise(ON_TIME = n()
+  )
+
+chi.flights.delay$ON_TIME <- ONTIME_FL_BY_DAY$ON_TIME
+
+chi.flights.delay <- 
+  chi.flights.delay %>%
+  mutate(PROP_ON_TIME = ON_TIME / TOTAL_FL_BY_DAY,
+         PROP_ON_TIME_80 = PROP_ON_TIME >= .8)
+
+print(chi.flights.delay)
+
+
+ggplot(chi.flights.delay %>% filter(AVG_DELAY_BY_DAY <= 20)) + 
+  geom_bar(aes(x = FL_DATE, 
+               y = AVG_DELAY_BY_DAY,
+               fill = PROP_ON_TIME_80),
+           stat = "identity") + 
+  labs(x = "Dates", 
+       y = "Average Delay in Minutes",
+       title = "Average Delay in Minutes by Day")
+
+# Filters down to days with at least 80% flights on time for better visualization.
+
+ggplot(chi.flights.delay %>% 
+         filter(PROP_ON_TIME_80 == "TRUE", AVG_DELAY_BY_DAY <= 20)) + 
+  geom_bar(aes(x = FL_DATE, 
+               y = AVG_DELAY_BY_DAY),
+           stat = "identity") + 
+  labs(x = "Dates", 
+       y = "Average Delay in Minutes",
+       title = "Days with 80%+ Flights On Time")
+
+```
+
+
+Ans 2.1.2.
+After filtering out flights with fewer than 906 flights (used the average number of flights as a benchmark for filtering), we see that the end of spring/summer months (May-August) and the end of year holiday season in December tends to have the most number of flights flying into Chicago.
+```{r}
+flights_to_chi <- 
+  chi.flights %>%
+  filter(DEST == "ORD" | DEST == "MDW") %>%
+  group_by(FL_DATE) %>%
+  summarise(TOTAL_FL_BY_DAY = n()) %>%
+  arrange(desc(TOTAL_FL_BY_DAY)
+  )
+
+print(flights_to_chi)
+
+mean_no_flights = mean(flights_to_chi$TOTAL_FL_BY_DAY)
+print(mean_no_flights)
+
+# Filtering by number of flights/day exceeding the mean for visualization.
+
+ggplot(flights_to_chi %>% filter(TOTAL_FL_BY_DAY >= 906)) + 
+  geom_bar(aes(x = FL_DATE, 
+               y = TOTAL_FL_BY_DAY),
+           stat = "identity") + 
+  labs(x = "Dates", 
+       y = "Total Number of Flights By Day",
+       title = "Days with At Least 906 Flights Into Chicago") + 
+  coord_cartesian(ylim = c(906, 1050))
+```
+
+
+Ans2.1.3.a
+We would recommend that the tourism board host the convention during early 
+April, because not only are there above average number of flights flying into Chicago which allows for more flight options and flexibility, but the average delay is minimal. 
+
+```{r}
+
+ggplot(chi.flights.delay %>% filter(PROP_ON_TIME_80 == "TRUE", TOTAL_FL_BY_DAY >= 906)) + 
+  geom_bar(aes(x = FL_DATE, 
+               y = AVG_DELAY_BY_DAY),
+           stat = "identity")+ 
+  labs(x = "Dates", 
+       y = "Average Delay in Minutes",
+       title = "Days with 80%+ Flights On Time and 900+ Flights")
+
+```
+
+Ans 2.1.3.b
+In this more sophisticated plot, we also included information on the day of the week. If we could only submit one plot, we would submit the more sophisticated 
+one to provide more information in terms of not only which part of which month 
+the convention should be held, but also which day of the week will allow the guests to have as many flight options and to arrive most on time. 
+
+```{r}
+ggplot(chi.flights.delay %>% filter(PROP_ON_TIME_80 == "TRUE", 
+      TOTAL_FL_BY_DAY >= 906)) +
+  geom_bar(aes(
+    x = FL_DATE,
+    y = AVG_DELAY_BY_DAY,
+    fill = AVG_DAY_OF_WEEK
+  ),
+  stat = "identity"
+  ) +
+  labs(
+    x = "Dates",
+    y = "Average Delay in Minutes",
+    title = "Days with 80%+ Flights On Time and 900+ Flights"
+  )
+```
+
+
+Ans 2.1.3.c
+
+1. Weather Dataset
+
+    + Because weather, specifically precitation levels in Chicago, tends to also impact flight arrival and delay times, we should also analyze weather patterns. Given average precitation levels for specific days of the year, we can determine whether there is a high likelihood of rain or other weather elements that will impact arrival of flights. Source: https://w2.weather.gov/climate/local_data.php?wfo=lot
+    
+2. Traffic Dataset
+
+    + Another factor to take into account when planning a large scale event 
+    may be traffic. Analyzing data for the last few years to find dates/times 
+    in which traffic congestion is highest may be helpful. That being said, perhaps it may also be helpful to compile data for major events happening in 
+    the area including athletic/sports games, concerts, races, and conferences that may increase traffic. Source: https://data.cityofchicago.org/ Transportation/Chicago-Traffic-Tracker-Historical-Congestion-Esti/77hq-huss
+
+## Pick an airline
+
+Ans 2.2.1
+If the convention were to be during the period of April 5-April 15, we would recommend F9 (Frontier Airlines) for timeliness. 
+```{r}
+avg_delay_carrier <-
+  chi.flights %>%
+  group_by(FL_DATE, OP_UNIQUE_CARRIER) %>%
+  summarise(AVG_DELAY_CARRIER = mean(ARR_DELAY, na.rm = TRUE)) %>%
+  filter(FL_DATE >= "2016-04-05" & FL_DATE <= "2016-04-15")
+
+ggplot(avg_delay_carrier) +
+  geom_bar(aes(
+    x = FL_DATE,
+    y = AVG_DELAY_CARRIER,
+    fill = OP_UNIQUE_CARRIER
+  ),
+  stat = "identity",
+  position = "dodge"
+  ) +
+  labs(
+    x = "Dates",
+    y = "Average Number of Minutes",
+    title = "Average Number of Minutes Delayed in Early Apr by Carrier"
+  )
+
+```
+
+## Reconsider the date?
+Ans 2.3.1
+Because the date we chose falls during hurricane season and because Greer, South Carolina typically is in the path of hurricanes, we may want to reconsider rescheduling the conference to early April. It is a safer bet to have the most important people at the convention arrive on time. 
+```{r}
+flights_from_sc <-
+  chi.flights %>%
+  filter(ORIGIN == "GSP") %>%
+  group_by(FL_DATE) %>%
+  summarise(
+    TOTAL_FL_BY_DAY = n(),
+    AVG_DELAY_BY_DAY = mean(ARR_DELAY, na.rm = TRUE)
+  )
+
+
+ggplot(flights_from_sc) +
+  geom_bar(aes(
+    x = FL_DATE,
+    y = AVG_DELAY_BY_DAY
+  ),
+  stat = "identity"
+  ) +
+  labs(
+    x = "Dates",
+    y = "Average Delay in Minutes"
+  )
+```
+
+
+
+
+
+
